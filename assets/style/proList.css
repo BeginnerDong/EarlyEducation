@@ -1,0 +1,12 @@
+
+/* 列表 */
+.proList{flex-wrap: wrap;}
+.proList .item{width: 330rpx;box-sizing: border-box;margin-top: 30rpx;border-radius: 16rpx;overflow: hidden;height: 160px;}
+.proList .video{width: 100%;height:200rpx;position: relative;}
+.proList .video image{width: 100%;height: 100%;}
+.proList .video .time{position: absolute;bottom: 0;left: 0;right: 0;background-image: linear-gradient(to bottom, rgba(0,0,0,0) 5%, rgba(0,0,0,0.3) 100%);padding: 10rpx 4%;box-sizing: border-box;font-size: 20rpx;color: #fff;}
+.proList .video .time .sIcon{width: 16px;height: 16px;margin-right: 12rpx;}
+.proList .item .infor{padding: 20rpx 4%;}
+
+
+
