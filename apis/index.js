@@ -17,6 +17,10 @@ export default {
 		};
 		http.HTTP(allParams);
 	},
+	
+	
+	
+	
 
 	registerSuper(param, callback) {
 
@@ -44,6 +48,21 @@ export default {
 		};
 		http.HTTP(allParams);
 	},
+	
+	resetPassword(param, callback) {
+	
+		var allParams = {
+			url: 'Project/Solely/resetPassword',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	
 
 	monthFlow(param, callback) {
 
@@ -127,6 +146,45 @@ export default {
 	SkuDateGet(param, callback) {
 		var allParams = {
 			url: 'Common/SkuDate/get',
+			type: 'post',
+			noToken: true,
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	messageGet(param, callback) {
+		var allParams = {
+			url: 'Common/Message/get',
+			type: 'post',
+			noToken: true,
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	messageAdd(param, callback) {
+		var allParams = {
+			url: 'Common/Message/add',
+			type: 'post',
+			noToken: true,
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	messageUpdate(param, callback) {
+		var allParams = {
+			url: 'Common/Message/update',
 			type: 'post',
 			noToken: true,
 			data: param,
@@ -282,6 +340,42 @@ export default {
 	qrCodeGet(param, callback) {
 		var allParams = {
 			url: 'Common/Qrcode/get',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	logGet(param, callback) {
+		var allParams = {
+			url: 'Common/Log/get',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	logAdd(param, callback) {
+		var allParams = {
+			url: 'Common/Log/add',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	logUpdate(param, callback) {
+		var allParams = {
+			url: 'Common/Log/update',
 			type: 'post',
 			data: param,
 			sCallback: function(data) {
@@ -518,6 +612,18 @@ export default {
 	distriGet(param, callback) {
 		var allParams = {
 			url: 'Common/Distribution/get',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
+	hotSearchGet(param, callback) {
+		var allParams = {
+			url: 'Common/HotSearch/get',
 			type: 'post',
 			data: param,
 			sCallback: function(data) {

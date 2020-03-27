@@ -4,8 +4,11 @@
 		<view class="userHead">
 			<view class="headbj"><image src="../../static/images/about-icon.png" mode=""></image></view>
 			<view class="infor radius10 boxShaow whiteBj">
-				<image class="photo" src="../../static/images/about-img.png" mode=""></image>
-				<view class="fs16 center">130****1235</view>
+				<view class="photo"
+				style="overflow: hidden;">
+					<open-data type="userAvatarUrl"></open-data>
+				</view>
+				<view class="fs16 center"><open-data type="userNickName"></open-data></view>
 			</view>
 		</view>
 		

@@ -5,9 +5,10 @@
 			<view class="banner-box pdlr4">
 				<view class="banner">
 					<swiper class="swiper-box" indicator-dots="true" autoplay="true" interval="3000" duration="1000" indicator-active-color="#ff5e43">
-						<block v-for="(item,index) in labelData" :key="index">
-							<swiper-item class="swiper-item"  @click="Router.navigateTo({route:{path:'/pages/detail/detail'}})">
-								<image :src="item" class="slide-image" />
+						<block v-for="(item,index) in bannerData" :key="index">
+							<swiper-item class="swiper-item" :data-url="item.url"
+							  @click="Router.navigateTo({route:{path:$event.currentTarget.dataset.url}})">
+								<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" class="slide-image"/>
 							</swiper-item>
 						</block>
 					</swiper>
@@ -16,39 +17,25 @@
 		</view>
 		
 		<view class="indHome flexRowBetween whiteBj mglr4 pdtb15 fs12">
-			<view class="item"  @click="Router.navigateTo({route:{path:'/pages/productList/productList'}})">
-				<image src="../../static/images/home-icon.png"></image>
-				<view class="tit">亲子</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/productList/productList'}})">
-				<image src="../../static/images/home-icon1.png"></image>
-				<view class="tit">早教</view>
-			</view>
-			<view class="item" @click="Router.navigateTo({route:{path:'/pages/productList/productList'}})">
-				<image src="../../static/images/home-icon2.png"></image>
-				<view class="tit">动画片</view>
-			</view>
-			<view class="item" @click="Router.redirectTo({route:{path:'/pages/productList/productList'}})">
-				<image src="../../static/images/home-icon3.png"></image>
-				<view class="tit">国学</view>
-			</view>
-			<view class="item" @click="Router.redirectTo({route:{path:'/pages/productList/productList'}})">
-				<image src="../../static/images/home-icon4.png"></image>
-				<view class="tit">英语</view>
+			<view class="item" v-for="(item,index) in labelData" :key="index" :data-id="item.id"
+			@click="Router.navigateTo({route:{path:'/pages/productList/productList?id='+$event.currentTarget.dataset.id}})">
+				<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
+				<view class="tit">{{item.title}}</view>
 			</view>
 		</view>
 		
 		<view class="pdlr4">
 			<view class="fs15 pdt5 ftw">推荐课程</view>
 			<view class="proList flexRowBetween">
-				<view class="item boxShaow" v-for="(item,index) in proData" :key="index" @click="Router.navigateTo({route:{path:'/pages/detail/detail'}})">
+				<view class="item boxShaow" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/detail/detail?id='+$event.currentTarget.dataset.id}})">
 					<view class="video">
-						<image src="../../static/images/home-img.png" mode=""></image>
-						<view class="time flex"><image class="sIcon" src="../../static/images/home-icon5.png" mode=""></image>03:09</view>
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
+						<view class="time flex"><image class="sIcon" src="../../static/images/home-icon5.png" mode=""></image>{{item.keywords}}</view>
 					</view>
 					<view class="infor center">
-						<view class="tit avoidOverflow">经典中文儿歌</view>
-						<view class="text fs10 color9 avoidOverflow">最受欢迎的而她给你歌曲</view>
+						<view class="tit avoidOverflow">{{item.title}}</view>
+						<view class="text fs10 color9 avoidOverflow">{{item.description}}</view>
 					</view>
 				</view>
 			</view>
@@ -87,29 +74,116 @@
 		data() {
 			return {
 				Router:this.$Router,
-				is_show: false,
-				wx_info:{},
-				is_show:false,
-				labelData: [
-					"../../static/images/home-banner.png",
-					"../../static/images/home-banner.png",
-					"../../static/images/home-banner.png"
+				
+				bannerData: [
 				],
-				proData:[{},{},{},{},{},{}]
+				labelData:[],
+				idArray:[],
+				mainData:[]
 			}
 		},
+		
 		onLoad() {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getLabelData','getBannerData'], self);
 		},
+		
 		methods: {
-			getMainData() {
+			
+			
+			getBannerData() {
 				const self = this;
-				console.log('852369')
+				self.bannerData = [];
 				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem = {
+					thirdapp_id: 2,
+					city_id:self.city_id
+				};
+				postData.getBefore = {
+					caseData: {
+						tableName: 'Label',
+						searchItem: {
+							title: ['in', ['轮播图']],
+						},
+						middleKey: 'parentid',
+						key: 'id',
+						condition: 'in',
+					},
+				};
+				postData.order = {
+					listorder:'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.bannerData.push.apply(self.bannerData, res.info.data)
+					}
+					console.log('self.bannerData', self.bannerData)
+					self.$Utils.finishFunc('getBannerData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			getLabelData() {
+				var self = this;
+				var postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+				};
+				postData.getBefore = {
+					label:{
+						tableName:'Label',
+						middleKey:'parentid',
+						key:'id',
+						searchItem:{
+							title:['in',['课程类别']],
+							status:['in',[1]]
+						},
+						condition:'in'
+					}
+				};
+				postData.order = {
+					listorder: 'desc'
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.labelData.push.apply(self.labelData, res.info.data);
+						for (var i = 0; i < self.labelData.length; i++) {
+							self.idArray.push(self.labelData[i].id);
+						}
+					};
+					self.getMainData();
+					self.$Utils.finishFunc('getLabelData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
+			
+			getMainData() {
+				var self = this;
+				var postData = {};
+				postData.paginate = {
+					count: 0,
+					currentPage:1,
+					pagesize:6,
+					is_page:true,
+				};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					menu_id:['in',self.idArray]
+				};
+				postData.order = {
+					listorder: 'desc'
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+					};
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.articleGet(postData, callback);
+			},
+			
+			
+			
 		}
 	};
 </script>

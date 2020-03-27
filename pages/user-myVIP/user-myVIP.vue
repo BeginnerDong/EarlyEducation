@@ -4,7 +4,8 @@
 		<view class="mglr4">
 			<view class="vipCard mgt15 fs15 radius10 oh">
 				<view class="pic"><image src="../../static/images/vip-img.png" mode=""></image></view>
-				<view class="tit pdt15 pdb10">到期时间：2020-01-01至2020-12-30</view>
+				<view class="tit pdt15 pdb10" v-if="userInfoData.is_member==0">您还不是会员身份</view>
+				<view class="tit pdt15 pdb10" v-else>到期时间：{{userInfoData.start_time}}至{{userInfoData.end_time}}</view>
 			</view>
 		</view>
 		
@@ -17,23 +18,39 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				wx_info:{},
-				is_show:false,
+				userInfoData:{}
 			}
 		},
+		
 		onLoad() {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getUserInfoData'], self);
 		},
+		
 		methods: {
-			getMainData() {
+			
+			getUserInfoData() {
 				const self = this;
 				console.log('852369')
-				const postData = {};
+				const postData = {
+					searchItem:{}
+				};
 				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
+				postData.searchItem.user_no = uni.getStorageSync('user_info').user_no
+				const callback = (res) => {
+					if (res.solely_code == 100000 && res.info.data[0]) {
+						self.userInfoData = res.info.data[0]
+						self.userInfoData.start_time = 	self.$Utils.timeto(self.userInfoData.start_time,'ymd')
+						self.userInfoData.end_time = 	self.$Utils.timeto(self.userInfoData.end_time,'ymd')
+					} else {
+						self.$Utils.showToast(res.msg, 'none');
+					};
+					self.$Utils.finishFunc('getUserInfoData');
+			
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
+			
 		}
 	};
 </script>

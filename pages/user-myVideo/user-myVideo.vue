@@ -2,31 +2,33 @@
 	<view>
 		
 		<view class="foundList">
-			<view class="item" v-for="(item,index) in proData" :key="index" @click="Router.navigateTo({route:{path:'/pages/foundDetail/foundDetail'}})">
+			<view class="item" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+			@click="Router.navigateTo({route:{path:'/pages/foundDetail/foundDetail?id='+$event.currentTarget.dataset.id}})">
 				<view class="flexRowBetween fs13">
 					<view class="flex pdb10">
 						<view class="photo">
-							<image src="../../static/images/found-img.png" mode=""></image>
+							<image :src="item.headImg&&item.headImg[0]?item.headImg[0].url:''" mode=""></image>
 						</view>
-						<view>小萌姐</view>
+						<view>{{item.title}}</view>
 					</view>
-					<view class="color9">2020-03-13</view>
+					<view class="color9">{{item.create_time}}</view>
 				</view>
-				<view class="video">
-					<image src="../../static/images/found-img1.png"></image>
+				<view class="video" style="position: relative;">
+					<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
+					<image src="../../static/images/release-icon3.png" style="width: 80rpx;height: 80rpx;position: absolute;top: 38%;left:44%;"></image>
 				</view>
 				<view class="infor center flexEnd fs12 pdt15">
 					<view class="sBtn flex">
 						<view><image class="icon" src="../../static/images/found-icon1.png" mode=""></image></view>
-						<view class="">123</view>
+						<view class="">{{item.view_count?item.view_count:'0'}}</view>
 					</view>
 					<view class="sBtn flex">
 						<view><image class="icon" src="../../static/images/found-icon2.png" mode=""></image></view>
-						<view class="">520</view>
+						<view class="">{{item.comment&&item.comment.count?item.comment.count:'0'}}</view>
 					</view>
 					<view class="sBtn flex">
-						<view><image class="icon" src="../../static/images/found-icon4.png" mode=""></image></view>
-						<view class="">563</view>
+						<view><image class="icon" :src="item.goodMe&&item.goodMe.length>0?'../../static/images/found-icon4.png':'../../static/images/found-icon3.png'" mode=""></image></view>
+						<view class="">{{item.good&&item.good.count?item.good.count:'0'}}</view>
 					</view>
 				</view>
 			</view>
@@ -41,25 +43,114 @@
 		data() {
 			return {
 				Router:this.$Router,
-				is_show: false,
-				wx_info:{},
-				is_show:false,
-				proData:[{},{}]
+				mainData:[]
 			}
 		},
+		
 		onLoad() {
 			const self = this;
-			// self.$Utils.loadAll(['getMainData'], self);
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			self.$Utils.loadAll(['getMainData'], self);
 		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
+		},
+		
 		methods: {
-			getMainData() {
-				const self = this;
-				console.log('852369')
-				const postData = {};
-				postData.tokenFuncName = 'getProjectToken';
-				self.$apis.orderGet(postData, callback);
-			}
-		}
+			
+			getMainData(isNew) {
+				var self = this;
+				if (isNew) {
+					self.messageData = [];
+					self.paginate = {
+						count: 0,
+						currentPage: 1,
+						is_page: true,
+						pagesize: 10
+					}
+				};
+				var postData = {};
+				//postData.tokenFuncName = 'getProjectToken';
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id: 2,
+					type:1,
+					user_no:uni.getStorageSync('user_info').user_no
+				};
+				postData.getAfter = {
+					goodMe: {
+						token:uni.getStorageSync('user_token'),
+						tableName: 'Log',
+						searchItem: {
+							status:['in',[1,-1]],
+							type:1,
+							user_no:uni.getStorageSync('user_info').user_no,
+							relation_table:'Message'
+						},
+						middleKey: 'id',
+						key: 'relation_id',
+						condition: 'in',
+					},
+					good: {
+						token:uni.getStorageSync('user_token'),
+						tableName: 'Log',
+						searchItem: {
+							status:1,
+							type:1,
+							relation_table:'Message'
+						},
+						middleKey: 'id',
+						key: 'relation_id',
+						condition: 'in',
+						compute:{
+						  count:[
+						    'count',
+						    'count',
+						    {
+						      status:1,type:1,relation_table:'Message'
+						    }
+						  ]
+						},
+					},
+					comment: {
+						token:uni.getStorageSync('user_token'),
+						tableName: 'Message',
+						searchItem: {
+							status:1,
+							type:2,
+							relation_table:'Message'
+						},
+						middleKey: 'id',
+						key: 'relation_id',
+						condition: 'in',
+						compute:{
+						  count:[
+						    'count',
+						    'count',
+						    {
+						      status:1,type:2,relation_table:'Message'
+						    }
+						  ]
+						},
+					},
+					
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.mainData.push.apply(self.mainData, res.info.data);
+					};
+					self.$Utils.finishFunc('getMainData');
+				};
+				self.$apis.messageGet(postData, callback);
+			},
+			
+		},
 	};
 </script>
 
