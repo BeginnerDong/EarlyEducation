@@ -1,7 +1,27 @@
 <template>
 	<view>
 		
-		<view class="foundList">
+		<view class="proList flexRowBetween mglr4">
+			<view class="item boxShaow whiteBj" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+			@click="Router.navigateTo({route:{path:'/pages/foundDetail/foundDetail?id='+$event.currentTarget.dataset.id}})">
+				<view class="video">
+					<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
+					<view class="time flex"><image class="sIcon" src="../../static/images/home-icon5.png" mode=""></image>{{item.keywords}}</view>
+				</view>
+				<view class="infor">
+					<view class="flexRowBetween pdb10">
+						<view class="flex fs12 color6">
+							<view class="photo"><image :src="item.headImg&&item.headImg[0]?item.headImg[0].url:''" mode=""></image></view>
+							<view>大黄山</view>
+						</view>
+						<view class="R-dian"><image src="../../static/images/found-icon5.png" mode=""></image></view>
+					</view>
+					<view class="tit avoidOverflow2 fs13">交付时间给国家开发设计稿根据福克斯的价格个梵蒂冈</view>
+				</view>
+			</view>
+		</view>
+		
+		<!-- <view class="foundList">
 			<view class="item" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
 			@click="Router.navigateTo({route:{path:'/pages/foundDetail/foundDetail?id='+$event.currentTarget.dataset.id}})">
 				<view class="flexRowBetween fs13">
@@ -32,7 +52,7 @@
 					</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 		
 		<view class="R-fixIcon" @click="upLoadVideo"><image src="../../static/images/found-icon.png" mode=""></image></view>
 		
@@ -259,9 +279,10 @@
 
 <style>
 	@import "../../assets/style/navbar.css";
-	/* @import "../../assets/style/proList.css"; */
+	@import "../../assets/style/proList.css";
 	
 	page{padding-bottom: 140rpx;background: #F5F5F5;}	
+	
 	
 	.foundList .item{padding: 30rpx 4%;background: #fff;margin-bottom:20rpx;}
 	.foundList .item .video{width: 100%;height: 360rpx;border-radius: 10rpx;overflow: hidden;}
@@ -275,4 +296,10 @@
 	
 	.R-fixIcon{width: 90rpx;height: 90rpx;position: fixed;top: 48%;right: 30rpx;z-index: 66;}
 	.R-fixIcon image{width: 100%;height: 100%;}
+	
+	.proList .item{height: auto;}
+	.proList .item .infor .photo{width: 44rpx;height: 44rpx;margin-right: 20rpx;border-radius: 50%;overflow: hidden;}
+	.proList .item .infor image{width: 100%;height: 100%;display: block;}
+	.R-dian{width: 48rpx;height: 8rpx;}
+	.proList .item .infor .tit{line-height: 38rpx;}
 </style>

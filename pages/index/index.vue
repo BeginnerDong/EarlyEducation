@@ -27,7 +27,7 @@
 		<view class="pdlr4">
 			<view class="fs15 pdt5 ftw">推荐课程</view>
 			<view class="proList flexRowBetween">
-				<view class="item boxShaow" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+				<view class="item boxShaow whiteBj" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
 				@click="Router.navigateTo({route:{path:'/pages/detail/detail?id='+$event.currentTarget.dataset.id}})">
 					<view class="video">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
@@ -35,11 +35,25 @@
 					</view>
 					<view class="infor center">
 						<view class="tit avoidOverflow">{{item.title}}</view>
-						<view class="text fs10 color9 avoidOverflow">{{item.description}}</view>
+						<view class="text fs12 color9 avoidOverflow">{{item.description}}</view>
 					</view>
 				</view>
 			</view>
 			
+			<view class="fs15 pdt15 ftw">最新视频</view>
+			<view class="flex newVideo mgb20">
+				<view class="item boxShaow" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+				@click="Router.navigateTo({route:{path:'/pages/detail/detail'}})">
+					<view class="video">
+						<image src="../../static/images/home-img.png" mode=""></image>
+						<view class="time flex"><image class="sIcon" src="../../static/images/home-icon5.png" mode=""></image>{{item.keywords}}</view>
+					</view>
+					<view class="infor center">
+						<view class="tit fs13 avoidOverflow">经典中文儿歌</view>
+						<view class="text fs11 color9 avoidOverflow">最受欢迎的儿童歌曲</view>
+					</view>
+				</view>
+			</view>
 		</view>
 		
 		
@@ -216,5 +230,12 @@
 	.indHome .item{width: 20%;text-align: center;color: #222;display: flex; flex-direction: column;}
 	.indHome .item image{width:60rpx;height:60rpx; margin: 0 auto 10rpx auto; }
 	
-	
+	.newVideo{flex-wrap: wrap;}
+	.newVideo .item{width: 220rpx;box-sizing: border-box;margin-top: 20rpx;border-radius:20rpx;overflow: hidden;height:230rpx; margin-right: 15rpx;}
+	.newVideo .item:nth-of-type(3n){margin-right: 0;}
+	.newVideo .video{width: 100%;height:133rpx;position: relative;}
+	.newVideo .video image{width: 100%;height: 100%;}
+	.newVideo .video .time{position: absolute;bottom: 0;left: 0;right: 0;background-image: linear-gradient(to bottom, rgba(0,0,0,0) 5%, rgba(0,0,0,0.3) 100%);padding: 10rpx 4%;box-sizing: border-box;font-size: 16rpx;color: #fff;}
+	.newVideo .video .time .sIcon{width: 14px;height: 14px;margin-right: 10rpx;}
+	.newVideo .item .infor{padding: 10rpx 4%;line-height:38rpx;}
 </style>
