@@ -75,7 +75,7 @@
 		onLoad() {
 			const self = this;
 			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
-			self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getMainData','getUserInfoData'], self);
 		},
 		
 		onReachBottom() {
@@ -90,8 +90,45 @@
 		methods: {
 			
 			
+			getUserInfoData() {
+				const self = this;
+				console.log('852369')
+				const postData = {
+					searchItem:{}
+				};
+				postData.tokenFuncName = 'getProjectToken';
+				postData.searchItem.user_no = uni.getStorageSync('user_info').user_no
+				const callback = (res) => {
+					if (res.solely_code == 100000 && res.info.data[0]) {
+						self.userInfoData = res.info.data[0]
+					} else {
+						self.$Utils.showToast(res.msg, 'none');
+					};
+					self.$Utils.finishFunc('getUserInfoData');
+			
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
+			
 			upLoadVideo(type) {
-				const self = this;			
+				const self = this;	
+				if(self.userInfoData.is_member==0){
+					uni.showModal({
+						title: '提示',
+						content: '会员用户才可发布视频，是否立即购买',
+						showCancel: true,
+						cancelText: '暂不',
+						confirmText: '去购买',
+						success: res => {
+							if (res.confirm) {
+								self.Router.navigateTo({route:{path:'/pages/buyVIP/buyVIP'}})
+							} else if (res.cancel) {
+								console.log('用户点击取消');
+							}
+						},
+					});
+					return
+				};
 				uni.showLoading({
 					mask: true,
 					title: '上传中',
@@ -147,7 +184,7 @@
 				postData.searchItem = {
 					thirdapp_id: 2,
 					type:1,
-					//behavior:1
+					behavior:1
 					//user_no:uni.getStorageSync('user_info').user_no
 				};
 				postData.getAfter = {

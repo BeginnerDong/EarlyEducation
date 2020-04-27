@@ -4,7 +4,7 @@
 			<view class="card flexRowBetween" @click="Router.navigateTo({route:{path:'/pages/user_myBankcard/user_myBankcard'}})">
 				<view class="flex">到账银行卡</view>
 				<view class="flexEnd">
-					<view class="mgr10 fs13 color6" v-if="userInfoData.bank_no!=''">中国银行({{userInfoData.bank_no?userInfoData.bank_no:''}})</view>
+					<view class="mgr10 fs13 color6" v-if="userInfoData.bank_no!=''">({{userInfoData.bank_no?userInfoData.bank_no:''}})</view>
 					<view class="mgr10 fs13 color6" v-else>绑定银行卡</view>
 					<view class="flexEnd">
 						<image class="arrowR" src="../../static/images/about-icon6.png" mode=""></image>
@@ -45,8 +45,14 @@
 		},
 		onLoad(options) {
 			const self = this;
+			
+		},
+		
+		onShow() {
+			const self = this;
 			self.$Utils.loadAll(['getUserInfoData'], self);
 		},
+		
 		methods: {
 			
 			allCount(){

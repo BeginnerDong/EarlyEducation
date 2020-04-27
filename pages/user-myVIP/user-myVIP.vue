@@ -40,8 +40,8 @@
 				const callback = (res) => {
 					if (res.solely_code == 100000 && res.info.data[0]) {
 						self.userInfoData = res.info.data[0]
-						self.userInfoData.start_time = 	self.$Utils.timeto(self.userInfoData.start_time,'ymd')
-						self.userInfoData.end_time = 	self.$Utils.timeto(self.userInfoData.end_time,'ymd')
+						self.userInfoData.start_time = 	self.$Utils.timeto(self.userInfoData.start_time*1000,'ymd')
+						self.userInfoData.end_time = 	self.$Utils.timeto(self.userInfoData.end_time*1000,'ymd')
 					} else {
 						self.$Utils.showToast(res.msg, 'none');
 					};

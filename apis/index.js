@@ -19,7 +19,18 @@ export default {
 	},
 	
 	
+	resumeAdd(param, callback) {
 	
+		var allParams = {
+			url: 'Common/Resume/add',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
 	
 
 	registerSuper(param, callback) {
@@ -35,7 +46,21 @@ export default {
 		http.HTTP(allParams);
 	},
 
-
+	
+	
+	shareCount(param, callback) {
+	
+		var allParams = {
+			url: 'Project/Solely/shareCount',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
 	bindShop(param, callback) {
 
 		var allParams = {

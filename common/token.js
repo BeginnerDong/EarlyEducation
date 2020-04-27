@@ -43,6 +43,9 @@ class Token {
 				info_name:'user_info',
 				token_name:'user_token'
 	        };
+			if(postData&&postData.parent_no){
+				params.parent_no = postData.parent_no
+			};
 			console.log('getProjectToken',callback)
 			if(callback){
 				this.getUserInfo(params,callback);
@@ -333,7 +336,9 @@ class Token {
                 console.log(res)
                 var postData = {};
                 postData.thirdapp_id = params.thirdapp_id;  
-                
+                if(params.parent_no){
+                	postData.parent_no = params.parent_no
+                };
                 postData.code = res.code;
                 if(wxUserInfo.nickName&&wxUserInfo.avatarUrl){
                     postData.nickname = wxUserInfo.nickName;

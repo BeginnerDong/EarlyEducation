@@ -147,6 +147,7 @@
 			const self = this;
 			self.id = options.id;
 			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
+			console.log('啊啊啊啊',options)
 			if(options.user_no){
 				const callback = (res) => {
 					self.$Utils.loadAll(['getUserInfoData'], self);
@@ -168,16 +169,19 @@
 		onShareAppMessage(ops) {
 			console.log(ops)
 			const self = this;
+			if(new Date(new Date().toLocaleDateString()).getTime()/1000==self.userInfoData.end_time&&self.userInfoData.behavior<2){
+				self.userInfoUpdate('oneDay')
+			};
+			self.shareCount()
 			if (ops.from === 'button') {
+				
 				return {
 					title: '亲子早教-'+self.mainData.title,
-					path: '/pages/detail/detail?user_no='+self.user_no+'&id='+self.id, //点击分享的图片进到哪一个页面
+					path: '/pages/detail/detail?user_no='+uni.getStorageSync('user_info').user_no+'&id='+self.id, //点击分享的图片进到哪一个页面
 					imageUrl:self.mainData.mainImg[0].url,
 					success: function(res) {
 						// 转发成功
-						if(new Date(new Date().toLocaleDateString()).getTime()/1000==self.userInfoData.end_time&&self.userInfoData.behavior<2){
-							self.userInfoUpdate('oneDay')
-						}
+						
 						console.log("转发成功:" + JSON.stringify(res));
 					},
 					fail: function(res) {
@@ -188,7 +192,7 @@
 			}else{
 				return {
 					title: '亲子早教-'+self.mainData.title,
-					path: '/pages/detail/detail?user_no='+self.user_no+'&id='+self.id, //点击分享的图片进到哪一个页面
+					path: '/pages/detail/detail?user_no='+uni.getStorageSync('user_info').user_no+'&id='+self.id, //点击分享的图片进到哪一个页面
 					imageUrl:self.mainData.mainImg[0].url,
 					success: function(res) {
 						// 转发成功
@@ -288,6 +292,24 @@
 					self.messageAdd();
 				};
 				self.$Utils.getAuthSetting(callback);	
+			},
+			
+			shareCount() {
+				const self = this;
+				const postData = {};
+				postData.tokenFuncName = 'getProjectToken';
+				postData.searchItem = {
+					id:self.mainData.id
+				};
+				const callback = (data) => {				
+					if (data.solely_code == 100000) {	
+						self.mainData.share_count = self.mainData.share_count + 1
+					} else {
+						uni.setStorageSync('canClick', true);
+						self.$Utils.showToast(data.msg, 'none', 1000)
+					}	
+				};
+				self.$apis.shareCount(postData, callback);
 			},
 			
 			messageAdd() {

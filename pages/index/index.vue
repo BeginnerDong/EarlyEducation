@@ -85,10 +85,23 @@
 		
 		onLoad() {
 			const self = this;
-			self.$Utils.loadAll(['getLabelData','getBannerData'], self);
+			self.$Utils.loadAll(['getUserInfoData','getLabelData','getBannerData'], self);
 		},
 		
 		methods: {
+			
+			getUserInfoData() {
+				const self = this;
+				const postData = {};
+				postData.tokenFuncName = 'getProjectToken';
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.userInfoData = res.info.data[0]
+					}
+					self.$Utils.finishFunc('getUserInfoData');
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
 			
 			
 			getBannerData() {

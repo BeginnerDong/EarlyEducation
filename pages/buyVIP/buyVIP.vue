@@ -4,7 +4,7 @@
 		<view class="mglr4">
 			<view class="vipCard center mgt15 fs15 radius10 oh">
 				<view class="pic"><image :src="mainData.mainImg&&mainData.mainImg[0]?mainData.mainImg[0].url:''" mode=""></image></view>
-				<view class="tit pdt15 pdb10">到期时间：2020-01-01至2020-12-30</view>
+				<!-- <view class="tit pdt15 pdb10">到期时间：2020-01-01至2020-12-30</view> -->
 			</view>
 		</view>
 		
@@ -24,16 +24,34 @@
 			return {
 				Router:this.$Router,
 				Utils:this.$Utils,
-				mainData:{}
+				mainData:{},
+				distriData:[]
 			}
 		},
 		
 		onLoad() {
 			const self = this;
-			self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getMainData','getDistriData'], self);
 		},
 		
 		methods: {
+			
+			getDistriData() {
+				var self = this;
+				var postData = {};
+				postData.tokenFuncName = 'getProjectToken';
+				postData.searchItem = {
+					thirdapp_id: 2,
+					child_no:uni.getStorageSync('user_info').user_no
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.distriData.push.apply(self.distriData,res.info.data)
+					};
+					self.$Utils.finishFunc('getDistriData');
+				};
+				self.$apis.distriGet(postData, callback);
+			},
 			
 			getMainData() {
 				var self = this;
@@ -94,7 +112,7 @@
 				uni.setStorageSync('canClick',false);
 				
 				const postData = {
-					score:{
+					wxPay:{
 						price:parseFloat(self.mainData.price)
 					}
 				};
@@ -102,6 +120,48 @@
 				postData.searchItem = {
 					id: self.orderId
 				};	
+				postData.payAfter = [];
+				if(self.distriData.length>0){
+					for (var i = 0; i < self.distriData.length; i++) {
+						if(self.distriData[i].level==1){
+							postData.payAfter.push(
+								{
+									tableName: 'FlowLog',
+									FuncName: 'add',
+									data: {
+										count:((parseFloat(uni.getStorageSync('user_info').thirdApp.first_class))/100*parseFloat(self.mainData.price)).toFixed(2),
+										thirdapp_id:2,
+										status:1,
+										trade_info:'推广佣金',
+										type:2,
+										account:1,
+										behavior:1,
+										user_no:self.distriData[i].parent_no,
+										relation_user:uni.getStorageSync('user_info').user_no
+									},
+								},
+							)
+						}else if(self.distriData[i].level==2){
+							postData.payAfter.push(
+								{
+									tableName: 'FlowLog',
+									FuncName: 'add',
+									data: {
+										count:((parseFloat(uni.getStorageSync('user_info').thirdApp.first_class))/100*parseFloat(self.mainData.price)).toFixed(2),
+										thirdapp_id:2,
+										status:1,
+										trade_info:'推广佣金',
+										type:2,
+										account:1,
+										behavior:1,
+										user_no:self.distriData[i].parent_no,
+										relation_user:uni.getStorageSync('user_info').user_no
+									},
+								},
+							)
+						}
+					}
+				}
 				const callback = (res) => {
 					if (res.solely_code == 100000) {
 						uni.setStorageSync('canClick', true);

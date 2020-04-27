@@ -55,12 +55,12 @@
 					}
 				};
 				var postData = {};
-				//postData.tokenFuncName = 'getProjectToken';
+				postData.tokenFuncName = 'getProjectToken';
 				postData.paginate = self.$Utils.cloneForm(self.paginate);
 				postData.searchItem = {
 					thirdapp_id: 2,
 					type:2,
-					//user_no:uni.getStorageSync('user_info').user_no
+					user_no:uni.getStorageSync('user_info').user_no
 				};
 				var callback = function(res) {
 					if (res.info.data.length > 0 && res.info.data[0]) {
