@@ -8,9 +8,9 @@
 				</view>
 				<view style="width: 520rpx;">
 					<view class="fs16 ftw"><open-data type="userNickName"></open-data></view>
-					<view class="flex mgt10">
+					<view class="flex mgt10" v-if="userInfoData.is_member>0">
 						<view><image style="width: 31rpx;height: 26rpx;margin-right: 10rpx;" src="../../static/images/about-icon0.png" mode=""></image></view>
-						<view class="fs12">有效期：2020.04.27-2020.04.30</view>
+						<view class="fs12">有效期：{{userInfoData.start_time}}-{{userInfoData.end_time}}</view>
 					</view>
 				</view>
 			</view>
@@ -86,19 +86,40 @@
 		data() {
 			return {
 				Router:this.$Router,
-				showView: false,
-				score:'',
-				wx_info:{}
+				userInfoData:{}
 			}
 		},
+		
 		onLoad() {
 			const self = this;
-			//self.$Utils.loadAll(['getMainData'], self);
+			self.$Utils.loadAll(['getUserInfoData'], self);
 		},
+		
 		methods: {
-
-
-		},
+			
+			getUserInfoData() {
+				const self = this;
+				console.log('852369')
+				const postData = {
+					searchItem:{}
+				};
+				postData.tokenFuncName = 'getProjectToken';
+				postData.searchItem.user_no = uni.getStorageSync('user_info').user_no
+				const callback = (res) => {
+					if (res.solely_code == 100000 && res.info.data[0]) {
+						self.userInfoData = res.info.data[0]
+						self.userInfoData.start_time = 	self.$Utils.timeto(self.userInfoData.start_time*1000,'ymd')
+						self.userInfoData.end_time = 	self.$Utils.timeto(self.userInfoData.end_time*1000,'ymd')
+					} else {
+						self.$Utils.showToast(res.msg, 'none');
+					};
+					self.$Utils.finishFunc('getUserInfoData');
+			
+				};
+				self.$apis.userInfoGet(postData, callback);
+			},
+			
+		}
 	};
 </script>
 

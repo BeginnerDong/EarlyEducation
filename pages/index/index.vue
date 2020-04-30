@@ -26,8 +26,8 @@
 		
 		<view class="pdlr4">
 			<view class="fs15 pdt5 ftw">推荐课程</view>
-			<view class="proList flexRowBetween">
-				<view class="item boxShaow whiteBj" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
+			<view class="proList flexRowBetween" style="min-height: 700rpx;">
+				<view class="item boxShaow whiteBj" v-for="(item,index) in hotData" :key="index" :data-id="item.id"
 				@click="Router.navigateTo({route:{path:'/pages/detail/detail?id='+$event.currentTarget.dataset.id}})">
 					<view class="video">
 						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''" mode=""></image>
@@ -43,14 +43,14 @@
 			<view class="fs15 pdt15 ftw">最新视频</view>
 			<view class="flex newVideo mgb20">
 				<view class="item boxShaow" v-for="(item,index) in mainData" :key="index" :data-id="item.id"
-				@click="Router.navigateTo({route:{path:'/pages/detail/detail'}})">
+				@click="Router.navigateTo({route:{path:'/pages/detail/detail?id='+$event.currentTarget.dataset.id}})">
 					<view class="video">
-						<image src="../../static/images/home-img.png" mode=""></image>
+						<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"mode=""></image>
 						<view class="time flex"><image class="sIcon" src="../../static/images/home-icon5.png" mode=""></image>{{item.keywords}}</view>
 					</view>
 					<view class="infor center">
-						<view class="tit fs13 avoidOverflow">经典中文儿歌</view>
-						<view class="text fs11 color9 avoidOverflow">最受欢迎的儿童歌曲</view>
+						<view class="tit fs13 avoidOverflow">{{item.title}}</view>
+						<view class="text fs11 color9 avoidOverflow">{{item.description}}</view>
 					</view>
 				</view>
 			</view>
@@ -93,13 +93,24 @@
 				],
 				labelData:[],
 				idArray:[],
-				mainData:[]
+				mainData:[],
+				hotData:[]
 			}
 		},
 		
 		onLoad() {
 			const self = this;
+			self.paginate = self.$Utils.cloneForm(self.$AssetsConfig.paginate);
 			self.$Utils.loadAll(['getUserInfoData','getLabelData','getBannerData'], self);
+		},
+		
+		onReachBottom() {
+			console.log('onReachBottom')
+			const self = this;
+			if (!self.isLoadAll && uni.getStorageSync('loadAllArray')) {
+				self.paginate.currentPage++;
+				self.getMainData()
+			};
 		},
 		
 		methods: {
@@ -179,18 +190,19 @@
 						}
 					};
 					self.getMainData();
+					self.getHotData()
 					self.$Utils.finishFunc('getLabelData');
 				};
 				self.$apis.labelGet(postData, callback);
 			},
 			
-			getMainData() {
+			getHotData() {
 				var self = this;
 				var postData = {};
 				postData.paginate = {
 					count: 0,
 					currentPage:1,
-					pagesize:6,
+					pagesize:4,
 					is_page:true,
 				};
 				postData.searchItem = {
@@ -199,6 +211,26 @@
 				};
 				postData.order = {
 					listorder: 'desc'
+				};
+				var callback = function(res) {
+					if (res.info.data.length > 0 && res.info.data[0]) {
+						self.hotData.push.apply(self.hotData, res.info.data);
+					};
+					self.$Utils.finishFunc('getHotData');
+				};
+				self.$apis.articleGet(postData, callback);
+			},
+			
+			getMainData() {
+				var self = this;
+				var postData = {};
+				postData.paginate = self.$Utils.cloneForm(self.paginate);
+				postData.searchItem = {
+					thirdapp_id: 2,
+					menu_id:['in',self.idArray]
+				};
+				postData.order = {
+					create_time: 'desc'
 				};
 				var callback = function(res) {
 					if (res.info.data.length > 0 && res.info.data[0]) {

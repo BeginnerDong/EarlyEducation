@@ -12,11 +12,11 @@
 					<view class="flexRowBetween pdb10">
 						<view class="flex fs12 color6">
 							<view class="photo"><image :src="item.headImg&&item.headImg[0]?item.headImg[0].url:''" mode=""></image></view>
-							<view>大黄山</view>
+							<view>{{item.title}}</view>
 						</view>
-						<view class="R-dian"><image src="../../static/images/found-icon5.png" mode=""></image></view>
+						<!-- <view class="R-dian"><image src="../../static/images/found-icon5.png" mode=""></image></view> -->
 					</view>
-					<view class="tit avoidOverflow2 fs13">交付时间给国家开发设计稿根据福克斯的价格个梵蒂冈</view>
+					<view class="tit avoidOverflow2 fs13">{{item.description}}</view>
 				</view>
 			</view>
 		</view>
