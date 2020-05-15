@@ -82,7 +82,7 @@ export default {
 			};
 		};
 		wx.uploadFile({
-			url: 'http://106.12.155.217/qzzj/public/index.php/api/v1/Base/FtpFile/upload',
+			url: 'https://www.liliyuanshangcao.cn/api/public/index.php/api/v1/Base/FtpFile/upload',
 			filePath: filePath,
 			name: name,
 			formData: formData,

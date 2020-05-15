@@ -3,7 +3,19 @@ import config from "@/config/index.config.js";
 
 
 export default {
-
+	
+	getQrCode(param, callback) {
+		var allParams = {
+			url: 'Base/Qr/ProgramQrGet',
+			type: 'post',
+			data: param,
+			sCallback: function(data) {
+				callback && callback(data);
+			}
+		};
+		http.HTTP(allParams);
+	},
+	
 
 	WxJssdk(param, callback) {
 

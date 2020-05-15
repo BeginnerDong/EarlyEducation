@@ -17,7 +17,7 @@
 		</view>
 		
 		<view class="indHome flexRowBetween whiteBj mglr4 pdtb15 fs12">
-			<view class="item" v-for="(item,index) in labelData" :key="index" :data-id="item.id"
+			<view class="item" v-for="(item,index) in labelData" style="margin-top: 30rpx;" :key="index" :data-id="item.id"
 			@click="Router.navigateTo({route:{path:'/pages/productList/productList?id='+$event.currentTarget.dataset.id}})">
 				<image :src="item.mainImg&&item.mainImg[0]?item.mainImg[0].url:''"></image>
 				<view class="tit">{{item.title}}</view>
@@ -26,7 +26,7 @@
 		
 		<view class="pdlr4">
 			<view class="fs15 pdt5 ftw">推荐课程</view>
-			<view class="proList flexRowBetween" style="min-height: 700rpx;">
+			<view class="proList flexRowBetween" style="min-height: 350rpx;">
 				<view class="item boxShaow whiteBj" v-for="(item,index) in hotData" :key="index" :data-id="item.id"
 				@click="Router.navigateTo({route:{path:'/pages/detail/detail?id='+$event.currentTarget.dataset.id}})">
 					<view class="video">
@@ -65,7 +65,7 @@
 				</view>
 				<view class="text this-text">首页</view>
 			</view>
-			<view class="navbar_item" @click="Router.redirectTo({route:{path:'/pages/found/found'}})" >
+			<view class="navbar_item" v-if="bannerData&&bannerData[0]&&bannerData[0].url!='1'" @click="Router.redirectTo({route:{path:'/pages/found/found'}})" >
 				<view class="nav_img">
 					<image src="../../static/images/nabar2.png" />
 				</view>

@@ -63,7 +63,7 @@
 				</view>
 				<view class="text">首页</view>
 			</view>
-			<view class="navbar_item" @click="Router.redirectTo({route:{path:'/pages/found/found'}})" >
+			<view class="navbar_item" v-if="bannerData&&bannerData[0]&&bannerData[0].url!='1'" @click="Router.redirectTo({route:{path:'/pages/found/found'}})" >
 				<view class="nav_img">
 					<image src="../../static/images/nabar2.png" />
 				</view>
@@ -86,16 +86,49 @@
 		data() {
 			return {
 				Router:this.$Router,
-				userInfoData:{}
+				userInfoData:{},
+				bannerData:[]
 			}
 		},
 		
 		onLoad() {
 			const self = this;
-			self.$Utils.loadAll(['getUserInfoData'], self);
+			self.$Utils.loadAll(['getUserInfoData','getBannerData'], self);
 		},
 		
 		methods: {
+			
+			getBannerData() {
+				const self = this;
+				self.bannerData = [];
+				const postData = {};
+				postData.searchItem = {
+					thirdapp_id: 2,
+					city_id:self.city_id
+				};
+				postData.getBefore = {
+					caseData: {
+						tableName: 'Label',
+						searchItem: {
+							title: ['in', ['轮播图']],
+						},
+						middleKey: 'parentid',
+						key: 'id',
+						condition: 'in',
+					},
+				};
+				postData.order = {
+					listorder:'desc'
+				};
+				const callback = (res) => {
+					if (res.info.data.length > 0) {
+						self.bannerData.push.apply(self.bannerData, res.info.data)
+					}
+					console.log('self.bannerData', self.bannerData)
+					self.$Utils.finishFunc('getBannerData');
+				};
+				self.$apis.labelGet(postData, callback);
+			},
 			
 			getUserInfoData() {
 				const self = this;

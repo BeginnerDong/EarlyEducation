@@ -1,20 +1,23 @@
 <template>
 	<view>
-		
+
 		<view class="mglr4">
 			<view class="vipCard center mgt15 fs15 radius10 oh">
-				<view class="pic"><image :src="mainData.mainImg&&mainData.mainImg[0]?mainData.mainImg[0].url:''" mode=""></image></view>
+				<view class="pic">
+					<image :src="mainData.mainImg&&mainData.mainImg[0]?mainData.mainImg[0].url:''" mode=""></image>
+				</view>
 				<!-- <view class="tit pdt15 pdb10">到期时间：2020-01-01至2020-12-30</view> -->
 			</view>
 		</view>
-		
+
 		<view class="xqbotomBar pdl15" style="height: 100rpx;">
-			<view class="flex fs13">总计：<view class="price fs16 ftw">{{mainData.price}}</view></view>
-			<button class="payBtn flexCenter" style="height: 100rpx;" open-type="getUserInfo"  @getuserinfo="Utils.stopMultiClick(submit)">确认订单</button>
+			<view class="flex fs13">总计：<view class="price fs16 ftw">{{mainData.price}}</view>
+			</view>
+			<button class="payBtn flexCenter" style="height: 100rpx;"  @click="Utils.stopMultiClick(submit)">确认订单</button>
 		</view>
-	
-	
-		
+
+
+
 	</view>
 </template>
 
@@ -22,37 +25,37 @@
 	export default {
 		data() {
 			return {
-				Router:this.$Router,
-				Utils:this.$Utils,
-				mainData:{},
-				distriData:[]
+				Router: this.$Router,
+				Utils: this.$Utils,
+				mainData: {},
+				distriData: []
 			}
 		},
-		
+
 		onLoad() {
 			const self = this;
-			self.$Utils.loadAll(['getMainData','getDistriData'], self);
+			self.$Utils.loadAll(['getMainData', 'getDistriData'], self);
 		},
-		
+
 		methods: {
-			
+
 			getDistriData() {
 				var self = this;
 				var postData = {};
 				postData.tokenFuncName = 'getProjectToken';
 				postData.searchItem = {
 					thirdapp_id: 2,
-					child_no:uni.getStorageSync('user_info').user_no
+					child_no: uni.getStorageSync('user_info').user_no
 				};
 				var callback = function(res) {
 					if (res.info.data.length > 0 && res.info.data[0]) {
-						self.distriData.push.apply(self.distriData,res.info.data)
+						self.distriData.push.apply(self.distriData, res.info.data)
 					};
 					self.$Utils.finishFunc('getDistriData');
 				};
 				self.$apis.distriGet(postData, callback);
 			},
-			
+
 			getMainData() {
 				var self = this;
 				var postData = {};
@@ -67,28 +70,45 @@
 				};
 				self.$apis.productGet(postData, callback);
 			},
-			
+
 			submit() {
 				const self = this;
-				uni.setStorageSync('canClick', false);
-				var orderList = [{
-					product_id: self.mainData.id,
-					count: 1,
-					type: 1,
-				}];
-				const callback = (user, res) => {
-					self.addOrder(orderList)
-				};
-				self.$Utils.getAuthSetting(callback);
+				console.log(222)
+				wx.requestSubscribeMessage({
+					tmplIds: ['ZjXPzYjG5LEkHmFoLuOMkj1azNYLxz_VObwWJOH9S4Y'],
+					success(res) {
+						console.log(res)
+						if (res) {
+							//uni.setStorageSync('canClick', false);
+							var orderList = [{
+								product_id: self.mainData.id,
+								count: 1,
+								type: 1,
+							}];
+							self.addOrder(orderList)
+						}
+					},
+					fail(err) {    //失败
+						var orderList = [{
+							product_id: self.mainData.id,
+							count: 1,
+							type: 1,
+						}];
+												
+						self.addOrder(orderList)
+					}
+				})
 			},
-			
+
 			addOrder(orderList) {
-				const self = this;	
-				if(self.orderId){
+				const self = this;
+				console.log(344)
+				if (self.orderId) {
 					self.goPay()
+					console.log(355)
 					return
 				};
-				const postData = {}; 
+				const postData = {};
 				postData.orderList = self.$Utils.cloneForm(orderList);
 				postData.data = {};
 				postData.tokenFuncName = 'getProjectToken';
@@ -97,68 +117,66 @@
 					if (res && res.solely_code == 100000) {
 						self.orderId = res.info.id;
 						self.goPay()
-					} else {		
+					} else {
 						uni.showToast({
 							title: res.msg,
 							duration: 2000
 						});
-					};		
+					};
 				};
 				self.$apis.addOrder(postData, callback);
 			},
-			
+
 			goPay(order_id) {
-				const self = this;	
-				uni.setStorageSync('canClick',false);
-				
+				const self = this;
+				uni.setStorageSync('canClick', false);
+				console.log(366)
 				const postData = {
-					wxPay:{
-						price:parseFloat(self.mainData.price)
+					wxPay: {
+						price: parseFloat(self.mainData.price)
 					}
 				};
 				postData.tokenFuncName = 'getProjectToken',
-				postData.searchItem = {
-					id: self.orderId
-				};	
+					postData.searchItem = {
+						id: self.orderId
+					};
 				postData.payAfter = [];
-				if(self.distriData.length>0){
+				if (self.distriData.length > 0) {
 					for (var i = 0; i < self.distriData.length; i++) {
-						if(self.distriData[i].level==1){
-							postData.payAfter.push(
-								{
-									tableName: 'FlowLog',
-									FuncName: 'add',
-									data: {
-										count:((parseFloat(uni.getStorageSync('user_info').thirdApp.first_class))/100*parseFloat(self.mainData.price)).toFixed(2),
-										thirdapp_id:2,
-										status:1,
-										trade_info:'推广佣金',
-										type:2,
-										account:1,
-										behavior:1,
-										user_no:self.distriData[i].parent_no,
-										relation_user:uni.getStorageSync('user_info').user_no
-									},
+						if (self.distriData[i].level == 1) {
+							postData.payAfter.push({
+								tableName: 'FlowLog',
+								FuncName: 'add',
+								data: {
+									count: ((parseFloat(uni.getStorageSync('user_info').thirdApp.first_class)) / 100 * parseFloat(self.mainData.price))
+										.toFixed(2),
+									thirdapp_id: 2,
+									status: 1,
+									trade_info: '推广佣金',
+									type: 2,
+									account: 1,
+									behavior: 1,
+									user_no: self.distriData[i].parent_no,
+									relation_user: uni.getStorageSync('user_info').user_no
 								},
-							)
-						}else if(self.distriData[i].level==2){
-							postData.payAfter.push(
-								{
-									tableName: 'FlowLog',
-									FuncName: 'add',
-									data: {
-										count:((parseFloat(uni.getStorageSync('user_info').thirdApp.first_class))/100*parseFloat(self.mainData.price)).toFixed(2),
-										thirdapp_id:2,
-										status:1,
-										trade_info:'推广佣金',
-										type:2,
-										account:1,
-										behavior:1,
-										user_no:self.distriData[i].parent_no,
-										relation_user:uni.getStorageSync('user_info').user_no
-									},
+							}, )
+						} else if (self.distriData[i].level == 2) {
+							postData.payAfter.push({
+								tableName: 'FlowLog',
+								FuncName: 'add',
+								data: {
+									count: ((parseFloat(uni.getStorageSync('user_info').thirdApp.first_class)) / 100 * parseFloat(self.mainData.price))
+										.toFixed(2),
+									thirdapp_id: 2,
+									status: 1,
+									trade_info: '推广佣金',
+									type: 2,
+									account: 1,
+									behavior: 1,
+									user_no: self.distriData[i].parent_no,
+									relation_user: uni.getStorageSync('user_info').user_no
 								},
-							)
+							}, )
 						}
 					}
 				}
@@ -173,12 +191,16 @@
 										title: '支付成功',
 										duration: 1000,
 										success: function() {
-											
+
 										}
 									});
 									setTimeout(function() {
-										
-										self.$Router.redirectTo({route:{path:'/pages/index/index'}})
+
+										self.$Router.redirectTo({
+											route: {
+												path: '/pages/index/index'
+											}
+										})
 									}, 1000);
 								} else {
 									uni.setStorageSync('canClick', true);
@@ -190,17 +212,21 @@
 							};
 							self.$Utils.realPay(res.info, payCallback);
 						} else {
-							
+
 							uni.showToast({
 								title: '支付成功',
 								duration: 1000,
 								success: function() {
-									
+
 								}
 							});
 							setTimeout(function() {
-								
-								self.$Router.redirectTo({route:{path:'/pages/index/index'}})
+
+								self.$Router.redirectTo({
+									route: {
+										path: '/pages/index/index'
+									}
+								})
 							}, 1000);
 						};
 					} else {
@@ -219,22 +245,33 @@
 
 <style>
 	@import "../../assets/style/detail.css";
-	page{padding-bottom:140rpx;}
-	
-	.vipCard .pic{width: 100%;height: 433rpx;}
-	.vipCard .pic image{width: 100%;height: 100%;}
+
+	page {
+		padding-bottom: 140rpx;
+	}
+
+	.vipCard .pic {
+		width: 100%;
+		height: 433rpx;
+	}
+
+	.vipCard .pic image {
+		width: 100%;
+		height: 100%;
+	}
+
 	button {
 		background: none;
 		line-height: 1.5;
 		margin: 0;
 		border-radius: 0;
-		font-size:15px
+		font-size: 15px
 	}
-	
+
 	button::after {
 		border: none;
 	}
-	
+
 	.button-hover {
 		color: #000000;
 		background: none;
